@@ -17,7 +17,9 @@ defmodule AwsAshWeb.CoreComponents do
   use Phoenix.Component
 
   alias Phoenix.LiveView.JS
-  import AwsAshWeb.Gettext
+
+  use Gettext,
+    backend: AwsAshWeb.Gettext
 
   @doc """
   Renders a modal.

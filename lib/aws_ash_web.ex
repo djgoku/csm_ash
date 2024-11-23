@@ -43,7 +43,9 @@ defmodule AwsAshWeb do
         layouts: [html: AwsAshWeb.Layouts]
 
       import Plug.Conn
-      import AwsAshWeb.Gettext
+
+      use Gettext,
+        backend: AwsAshWeb.Gettext
 
       unquote(verified_routes())
     end
@@ -85,7 +87,9 @@ defmodule AwsAshWeb do
       import Phoenix.HTML
       # Core UI components and translation
       import AwsAshWeb.CoreComponents
-      import AwsAshWeb.Gettext
+
+      use Gettext,
+        backend: AwsAshWeb.Gettext
 
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS
