@@ -11,5 +11,13 @@ defmodule AwsAsh do
     datetime
     |> Timex.to_datetime(Timex.Timezone.local())
     |> Timex.format!("{YYYY}-{M}-{D} {h24}:{m}")
+  def iam_policy_json_string(actions) do
+    Jason.encode!(
+      %{
+        "Version" => "2012-10-17",
+        "Statement" => %{"Effect" => "Allow", "Action" => actions, "Resources" => "*"}
+      },
+      pretty: true
+    )
   end
 end

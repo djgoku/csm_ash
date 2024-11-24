@@ -23,6 +23,8 @@ defmodule AwsAshWeb.SessionLive.Show do
       <:item title="Client"><%= @session.client_id %></:item>
     </.list>
 
+    <.input type="textarea" label="iam-policy" name="iam-policy" value={@iam_policy} readonly rows={@iam_policy_lines} />
+
     <.table id="events-#{@session.id}" rows={@session.events}>
       <:col :let={event} label="Id"><%= event.id %></:col>
 
@@ -64,10 +66,16 @@ defmodule AwsAshWeb.SessionLive.Show do
 
   @impl true
   def handle_params(%{"id" => id}, _, socket) do
+
+    iam_policy_json_string =
+      AwsAsh.iam_policy_json_string(AwsAsh.SdkMetrics.Event.unique_events(session.events))
+
     {:noreply,
      socket
      |> assign(:page_title, page_title(socket.assigns.live_action))
-     |> assign(:session, Ash.get!(AwsAsh.SdkMetrics.Session, id) |> Ash.load!(:events))}
+     |> assign(:session, Ash.get!(AwsAsh.SdkMetrics.Session, id) |> Ash.load!(:events))
+     |> assign(:iam_policy, iam_policy_json_string)
+     |> assign(:iam_policy_lines, iam_policy_json_string|> String.split("\n")|> length)}
   end
 
   defp page_title(:show), do: "Show Session"
