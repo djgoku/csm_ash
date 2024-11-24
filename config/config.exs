@@ -38,7 +38,8 @@ config :spark,
 
 config :aws_ash,
   ecto_repos: [AwsAsh.Repo],
-  generators: [timestamp_type: :utc_datetime]
+  generators: [timestamp_type: :utc_datetime],
+  ash_domains: [AwsAsh.SdkMetrics]
 
 # Configures the endpoint
 config :aws_ash, AwsAshWeb.Endpoint,
