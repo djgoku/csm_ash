@@ -1,6 +1,8 @@
 defmodule AwsAsh.SdkMetrics.Event do
   use Ash.Resource, otp_app: :aws_ash, domain: AwsAsh.SdkMetrics, data_layer: AshSqlite.DataLayer
 
+  require Ash.Query
+
   sqlite do
     table "events"
     repo AwsAsh.Repo
@@ -50,5 +52,16 @@ defmodule AwsAsh.SdkMetrics.Event do
 
   calculations do
     calculate :combine_service_and_api, :string, expr(string_downcase(service) <> ":" <> api)
+  end
+
+  def unique_events(session_id) do
+    AwsAsh.SdkMetrics.Event
+    |> Ash.Query.filter(session_id == ^session_id)
+    |> Ash.Query.select([:api, :service])
+    |> Ash.Query.load(:combine_service_and_api)
+    |> Ash.Query.sort([:service, :api])
+    |> Ash.read!()
+    |> Enum.map(& &1.combine_service_and_api)
+    |> Enum.uniq()
   end
 end
