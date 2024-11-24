@@ -47,4 +47,8 @@ defmodule AwsAsh.SdkMetrics.Event do
   relationships do
     belongs_to :session, AwsAsh.SdkMetrics.Session
   end
+
+  calculations do
+    calculate :combine_service_and_api, :string, expr(string_downcase(service) <> ":" <> api)
+  end
 end
