@@ -33,6 +33,8 @@ defmodule AwsAsh.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:timex, "~> 3.0"},
+      {:tzdata, "~> 1.0"},
       {:ash_sqlite,
        [github: "djgoku/ash_sqlite", ref: "chore-remove-setting-repo-port", override: true]},
       {:ash_phoenix, "~> 2.0"},
