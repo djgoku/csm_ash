@@ -19,7 +19,8 @@ defmodule AwsAsh.Application do
       # Start a worker by calling: AwsAsh.Worker.start_link(arg)
       # {AwsAsh.Worker, arg},
       # Start to serve requests, typically the last entry
-      AwsAshWeb.Endpoint
+      AwsAshWeb.Endpoint,
+      AwsAsh.SdkMetrics.Server
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
