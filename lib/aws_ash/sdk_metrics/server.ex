@@ -39,18 +39,12 @@ defmodule AwsAsh.SdkMetrics.Server do
         [] ->
           session = AwsAsh.SdkMetrics.session!(in_port, json["ClientId"])
 
-          AwsAsh.SdkMetrics.event!(
-            json["Api"],
-            json["ClientId"],
-            json["Service"],
-            json,
-            session.id
-          )
+          create_event(json, session)
 
           %{state | sessions: [session] ++ state.sessions}
 
-        [match] ->
-          AwsAsh.SdkMetrics.event!(json["Api"], json["ClientId"], json["Service"], json, match.id)
+        [session] ->
+          event = create_event(json, session)
           state
       end
 
@@ -75,5 +69,15 @@ defmodule AwsAsh.SdkMetrics.Server do
     else
       result
     end
+  end
+
+  defp create_event(json, session) do
+    AwsAsh.SdkMetrics.event!(
+      json["Api"],
+      json["ClientId"],
+      json["Service"],
+      json,
+      session.id
+    )
   end
 end
