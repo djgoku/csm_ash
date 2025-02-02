@@ -10,7 +10,9 @@ defmodule AwsAsh do
   def to_local_datetime(datetime) do
     datetime
     |> Timex.to_datetime(Timex.Timezone.local())
-    |> Timex.format!("{YYYY}-{M}-{D} {h24}:{m}")
+    |> Timex.format!("{YYYY}-{0M}-{0D} {h24}:{m}:{s}")
+  end
+
   def iam_policy_json_string(actions) do
     Jason.encode!(
       %{
