@@ -54,14 +54,10 @@ defmodule AwsAsh.SdkMetrics.Event do
     calculate :combine_service_and_api, :string, expr(string_downcase(service) <> ":" <> api)
   end
 
-  def unique_events(session_id) do
-    AwsAsh.SdkMetrics.Event
-    |> Ash.Query.filter(session_id == ^session_id)
-    |> Ash.Query.select([:api, :service])
-    |> Ash.Query.load(:combine_service_and_api)
-    |> Ash.Query.sort([:service, :api])
-    |> Ash.read!()
+  def unique_events(events) do
+    events
     |> Enum.map(& &1.combine_service_and_api)
     |> Enum.uniq()
+    |> Enum.sort()
   end
 end
