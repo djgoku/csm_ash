@@ -20,4 +20,10 @@ defmodule AwsAsh do
       pretty: true
     )
   end
+
+  def iam_policy_json_string_lines(string) do
+    string
+    |> String.split("\n")
+    |> length
+  end
 end

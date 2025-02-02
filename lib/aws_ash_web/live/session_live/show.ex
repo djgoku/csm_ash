@@ -71,12 +71,14 @@ defmodule AwsAshWeb.SessionLive.Show do
     iam_policy_json_string =
       AwsAsh.iam_policy_json_string(AwsAsh.SdkMetrics.Event.unique_events(session.events))
 
+    iam_policy_lines = AwsAsh.iam_policy_json_string_lines(iam_policy_json_string)
+
     {:noreply,
      socket
      |> assign(:page_title, page_title(socket.assigns.live_action))
      |> assign(:session, session)
      |> assign(:iam_policy, iam_policy_json_string)
-     |> assign(:iam_policy_lines, iam_policy_json_string|> String.split("\n")|> length)}
+     |> assign(:iam_policy_lines, iam_policy_lines)}
   end
 
   defp page_title(:show), do: "Show Session"
