@@ -66,6 +66,7 @@ defmodule AwsAshWeb.SessionLive.Show do
 
   @impl true
   def handle_params(%{"id" => id}, _, socket) do
+    session = AwsAsh.SdkMetrics.get_session_by_id!(id, load: [events: [:combine_service_and_api]])
 
     iam_policy_json_string =
       AwsAsh.iam_policy_json_string(AwsAsh.SdkMetrics.Event.unique_events(session.events))
@@ -73,7 +74,7 @@ defmodule AwsAshWeb.SessionLive.Show do
     {:noreply,
      socket
      |> assign(:page_title, page_title(socket.assigns.live_action))
-     |> assign(:session, Ash.get!(AwsAsh.SdkMetrics.Session, id) |> Ash.load!(:events))
+     |> assign(:session, session)
      |> assign(:iam_policy, iam_policy_json_string)
      |> assign(:iam_policy_lines, iam_policy_json_string|> String.split("\n")|> length)}
   end

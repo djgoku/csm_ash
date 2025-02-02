@@ -4,6 +4,7 @@ defmodule AwsAsh.SdkMetrics do
   resources do
     resource AwsAsh.SdkMetrics.Session do
       define :session, args: [:in_port, :client_id], action: :create
+      define :get_session_by_id, action: :read, get_by: :id
     end
 
     resource AwsAsh.SdkMetrics.Event do
