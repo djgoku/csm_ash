@@ -12,7 +12,7 @@ defmodule AwsAshWeb.SessionLive.Index do
     <.table
       id="sessions"
       rows={@streams.sessions}
-      row_click={fn {_id, session} -> JS.navigate(~p"/sessions/#{session}") end}
+      row_click={fn {_id, session} -> JS.navigate(~p"/#{session}") end}
     >
       <:col :let={{_id, session}} label="Id"><%= session.id %></:col>
 
@@ -26,21 +26,21 @@ defmodule AwsAshWeb.SessionLive.Index do
 
       <:action :let={{_id, session}}>
         <div class="sr-only">
-          <.link navigate={~p"/sessions/#{session}"}>Show</.link>
+          <.link navigate={~p"/#{session}"}>Show</.link>
         </div>
 
-        <.link patch={~p"/sessions/#{session}/edit"}>Edit</.link>
+        <.link patch={~p"/#{session}/edit"}>Edit</.link>
       </:action>
     </.table>
 
-    <.modal :if={@live_action in [:edit]} id="session-modal" show on_cancel={JS.patch(~p"/sessions")}>
+    <.modal :if={@live_action in [:edit]} id="session-modal" show on_cancel={JS.patch(~p"/")}>
       <.live_component
         module={AwsAshWeb.SessionLive.FormComponent}
         id={@session && @session.id}
         title={@page_title}
         action={@live_action}
         session={@session}
-        patch={~p"/sessions"}
+        patch={~p"/"}
       />
     </.modal>
     """

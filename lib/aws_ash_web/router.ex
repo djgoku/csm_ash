@@ -17,13 +17,11 @@ defmodule AwsAshWeb.Router do
   scope "/", AwsAshWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    live "/", SessionLive.Index, :index
+    live "/:id/edit", SessionLive.Index, :edit
 
-    live "/sessions", SessionLive.Index, :index
-    live "/sessions/:id/edit", SessionLive.Index, :edit
-
-    live "/sessions/:id", SessionLive.Show, :show
-    live "/sessions/:id/show/edit", SessionLive.Show, :edit
+    live "/:id", SessionLive.Show, :show
+    live "/:id/show/edit", SessionLive.Show, :edit
   end
 
   # Other scopes may use custom stacks.

@@ -9,7 +9,7 @@ defmodule AwsAshWeb.SessionLive.Show do
       <:subtitle>This is a session record from your database.</:subtitle>
 
       <:actions>
-        <.link patch={~p"/sessions/#{@session}/show/edit"} phx-click={JS.push_focus()}>
+        <.link patch={~p"/#{@session}/show/edit"} phx-click={JS.push_focus()}>
           <.button>Edit session</.button>
         </.link>
       </:actions>
@@ -37,13 +37,13 @@ defmodule AwsAshWeb.SessionLive.Show do
       </:col>
     </.table>
 
-    <.back navigate={~p"/sessions"}>Back to sessions</.back>
+    <.back navigate={~p"/"}>Back to sessions</.back>
 
     <.modal
       :if={@live_action == :edit}
       id="session-modal"
       show
-      on_cancel={JS.patch(~p"/sessions/#{@session}")}
+      on_cancel={JS.patch(~p"/#{@session}")}
     >
       <.live_component
         module={AwsAshWeb.SessionLive.FormComponent}
@@ -51,7 +51,7 @@ defmodule AwsAshWeb.SessionLive.Show do
         title={@page_title}
         action={@live_action}
         session={@session}
-        patch={~p"/sessions/#{@session}"}
+        patch={~p"/#{@session}"}
       />
     </.modal>
     """
