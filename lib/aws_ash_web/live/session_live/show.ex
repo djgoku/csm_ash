@@ -24,6 +24,7 @@ defmodule AwsAshWeb.SessionLive.Show do
     </.list>
 
     <.input
+      id="iam-policy"
       type="textarea"
       label="iam-policy"
       name="iam-policy"
@@ -31,6 +32,13 @@ defmodule AwsAshWeb.SessionLive.Show do
       readonly
       rows={@iam_policy_lines}
     />
+
+    <button
+      phx-click={JS.dispatch("session_live:copy_iam_policy_to_clipboard", to: "#iam-policy")}
+      class="text-black dark:text-white"
+    >
+      Copy IAM policy to clipboard
+    </button>
 
     <.table id="events-#{@session.id}" rows={@session.events}>
       <:col :let={event} label="Id">{event.id}</:col>
