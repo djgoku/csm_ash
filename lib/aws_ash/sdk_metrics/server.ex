@@ -35,8 +35,7 @@ defmodule AwsAsh.SdkMetrics.Server do
     json = Jason.decode!(message)
 
     state =
-      case state.sessions
-           |> Enum.filter(fn s -> s.in_port == in_port && s.client_id == json["ClientId"] end) do
+      case maybe_existing_session(state, in_port, json) do
         [] ->
           session = AwsAsh.SdkMetrics.session!(in_port, json["ClientId"])
 
@@ -56,5 +55,25 @@ defmodule AwsAsh.SdkMetrics.Server do
       end
 
     {:noreply, state}
+  end
+
+  @doc """
+  Search for an existing session and return it, else return an empty list.
+
+  There is a possibility that a session(s) has the same in_port (since
+  we use this as part of uniqueness), so we will just return the first occurence.
+  """
+  def maybe_existing_session(state, in_port, json) do
+    result =
+      state.sessions
+      |> Enum.filter(fn s ->
+        s.in_port == in_port && s.client_id == json["ClientId"]
+      end)
+
+    if Enum.count(result) > 1 do
+      List.first(result)
+    else
+      result
+    end
   end
 end
