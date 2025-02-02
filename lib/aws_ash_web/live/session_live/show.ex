@@ -23,7 +23,14 @@ defmodule AwsAshWeb.SessionLive.Show do
       <:item title="Client"><%= @session.client_id %></:item>
     </.list>
 
-    <.input type="textarea" label="iam-policy" name="iam-policy" value={@iam_policy} readonly rows={@iam_policy_lines} />
+    <.input
+      type="textarea"
+      label="iam-policy"
+      name="iam-policy"
+      value={@iam_policy}
+      readonly
+      rows={@iam_policy_lines}
+    />
 
     <.table id="events-#{@session.id}" rows={@session.events}>
       <:col :let={event} label="Id"><%= event.id %></:col>
@@ -41,12 +48,7 @@ defmodule AwsAshWeb.SessionLive.Show do
 
     <.back navigate={~p"/"}>Back to sessions</.back>
 
-    <.modal
-      :if={@live_action == :edit}
-      id="session-modal"
-      show
-      on_cancel={JS.patch(~p"/#{@session}")}
-    >
+    <.modal :if={@live_action == :edit} id="session-modal" show on_cancel={JS.patch(~p"/#{@session}")}>
       <.live_component
         module={AwsAshWeb.SessionLive.FormComponent}
         id={@session.id}
