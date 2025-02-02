@@ -76,6 +76,7 @@ defmodule AwsAshWeb.SessionLive.Show do
 
   @impl true
   def handle_params(%{"id" => id}, _, socket) do
+    AwsAshWeb.Endpoint.subscribe("session:#{id}")
     session = AwsAsh.SdkMetrics.get_session_by_id!(id, load: [events: [:combine_service_and_api]])
 
     iam_policy_json_string =
@@ -89,6 +90,31 @@ defmodule AwsAshWeb.SessionLive.Show do
      |> assign(:session, session)
      |> assign(:iam_policy, iam_policy_json_string)
      |> assign(:iam_policy_lines, iam_policy_lines)}
+  end
+
+  @impl true
+  def handle_info(
+        %Phoenix.Socket.Broadcast{
+          topic: "session:" <> _session_id,
+          event: "new-event",
+          payload: payload
+        },
+        socket
+      ) do
+    payload = Ash.load!(payload, [:combine_service_and_api])
+    events = [payload] ++ socket.assigns.session.events
+    unique_events = AwsAsh.SdkMetrics.Event.unique_events(events)
+    iam_policy_json_string = AwsAsh.iam_policy_json_string(unique_events)
+    session = Map.put(socket.assigns.session, :events, events)
+
+    socket =
+      socket
+      |> assign(:session, session)
+      |> assign(:unique_events, unique_events)
+      |> assign(:iam_policy, iam_policy_json_string)
+      |> assign(:iam_policy_lines, AwsAsh.iam_policy_json_string_lines(iam_policy_json_string))
+
+    {:noreply, socket}
   end
 
   defp page_title(:show), do: "Show Session"

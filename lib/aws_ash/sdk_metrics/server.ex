@@ -38,6 +38,7 @@ defmodule AwsAsh.SdkMetrics.Server do
       case maybe_existing_session(state, in_port, json) do
         [] ->
           session = AwsAsh.SdkMetrics.session!(in_port, json["ClientId"])
+          AwsAshWeb.Endpoint.broadcast("sessions", "new-session", session)
 
           create_event(json, session)
 
@@ -45,6 +46,8 @@ defmodule AwsAsh.SdkMetrics.Server do
 
         [session] ->
           event = create_event(json, session)
+          AwsAshWeb.Endpoint.broadcast("session:" <> session.id, "new-event", event)
+
           state
       end
 

@@ -48,12 +48,14 @@ defmodule AwsAshWeb.SessionLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
+    AwsAshWeb.Endpoint.subscribe("sessions")
+
     sessions =
       AwsAsh.SdkMetrics.Session
       |> Ash.Query.sort(inserted_at: :desc)
       |> Ash.read!()
 
-    {:ok, stream(socket, :sessions, sessions)}
+    {:ok, socket |> assign(:inserted, false) |> stream(:sessions, sessions)}
   end
 
   @impl true
@@ -76,5 +78,17 @@ defmodule AwsAshWeb.SessionLive.Index do
   @impl true
   def handle_info({AwsAshWeb.SessionLive.FormComponent, {:saved, session}}, socket) do
     {:noreply, stream_insert(socket, :sessions, session)}
+  end
+
+  @impl true
+  def handle_info(
+        %Phoenix.Socket.Broadcast{
+          topic: "sessions",
+          event: "new-session",
+          payload: payload
+        },
+        socket
+      ) do
+    {:noreply, socket |> assign(:inserted, true) |> stream_insert(:sessions, payload, at: 0)}
   end
 end
