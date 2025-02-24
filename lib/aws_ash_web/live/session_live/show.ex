@@ -5,7 +5,7 @@ defmodule AwsAshWeb.SessionLive.Show do
   def render(assigns) do
     ~H"""
     <.header>
-      Session <%= @session.id %>
+      Session {@session.id}
       <:subtitle>This is a session record from your database.</:subtitle>
 
       <:actions>
@@ -16,11 +16,11 @@ defmodule AwsAshWeb.SessionLive.Show do
     </.header>
 
     <.list>
-      <:item title="Id"><%= @session.id %></:item>
+      <:item title="Id">{@session.id}</:item>
 
-      <:item title="In port"><%= @session.in_port %></:item>
+      <:item title="In port">{@session.in_port}</:item>
 
-      <:item title="Client"><%= @session.client_id %></:item>
+      <:item title="Client">{@session.client_id}</:item>
     </.list>
 
     <.input
@@ -33,16 +33,16 @@ defmodule AwsAshWeb.SessionLive.Show do
     />
 
     <.table id="events-#{@session.id}" rows={@session.events}>
-      <:col :let={event} label="Id"><%= event.id %></:col>
+      <:col :let={event} label="Id">{event.id}</:col>
 
-      <:col :let={event} label="Service"><%= event.service %></:col>
+      <:col :let={event} label="Service">{event.service}</:col>
 
-      <:col :let={event} label="Api"><%= event.api %></:col>
+      <:col :let={event} label="Api">{event.api}</:col>
 
-      <:col :let={event} label="Region"><%= event.json["Region"] %></:col>
+      <:col :let={event} label="Region">{event.json["Region"]}</:col>
 
       <:col :let={event} label="Inserted At">
-        <%= event.inserted_at |> AwsAsh.to_local_datetime() %>
+        {event.inserted_at |> AwsAsh.to_local_datetime()}
       </:col>
     </.table>
 

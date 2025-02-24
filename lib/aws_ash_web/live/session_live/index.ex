@@ -14,14 +14,14 @@ defmodule AwsAshWeb.SessionLive.Index do
       rows={@streams.sessions}
       row_click={fn {_id, session} -> JS.navigate(~p"/#{session}") end}
     >
-      <:col :let={{_id, session}} label="Id"><%= session.id %></:col>
+      <:col :let={{_id, session}} label="Id">{session.id}</:col>
 
-      <:col :let={{_id, session}} label="In port"><%= session.in_port %></:col>
+      <:col :let={{_id, session}} label="In port">{session.in_port}</:col>
 
-      <:col :let={{_id, session}} label="Client"><%= session.client_id %></:col>
+      <:col :let={{_id, session}} label="Client">{session.client_id}</:col>
 
       <:col :let={{_id, session}} label="Inserted At (Local time)">
-        <%= AwsAsh.to_local_datetime(session.inserted_at) %>
+        {AwsAsh.to_local_datetime(session.inserted_at)}
       </:col>
 
       <:action :let={{_id, session}}>
