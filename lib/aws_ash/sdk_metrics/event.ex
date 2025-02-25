@@ -12,7 +12,7 @@ defmodule AwsAsh.SdkMetrics.Event do
     defaults [:read]
 
     create :create do
-      accept [:api, :client_id, :service, :json, :session_id]
+      accept [:api, :client_id, :service, :type, :json, :session_id]
     end
 
     update :assign do
@@ -36,6 +36,11 @@ defmodule AwsAsh.SdkMetrics.Event do
     end
 
     attribute :service, :string do
+      allow_nil? false
+      public? true
+    end
+
+    attribute :type, :string do
       allow_nil? false
       public? true
     end

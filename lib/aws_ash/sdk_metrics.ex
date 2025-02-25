@@ -8,7 +8,10 @@ defmodule AwsAsh.SdkMetrics do
     end
 
     resource AwsAsh.SdkMetrics.Event do
-      define :event, args: [:api, :client_id, :service, :json, :session_id], action: :create
+      define :event,
+        args: [:api, :client_id, :service, :type, :json, :session_id],
+        action: :create
+
     end
   end
 end

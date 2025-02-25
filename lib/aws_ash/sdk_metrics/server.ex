@@ -79,6 +79,7 @@ defmodule AwsAsh.SdkMetrics.Server do
       json["Api"],
       json["ClientId"],
       json["Service"],
+      json["Type"],
       json,
       session.id
     )

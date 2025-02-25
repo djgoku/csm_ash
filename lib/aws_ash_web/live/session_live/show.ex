@@ -49,6 +49,8 @@ defmodule AwsAshWeb.SessionLive.Show do
 
       <:col :let={event} label="Region">{event.json["Region"]}</:col>
 
+      <:col :let={event} label="Type">{event.type}</:col>
+
       <:col :let={event} label="Inserted At">
         {event.inserted_at |> AwsAsh.to_local_datetime()}
       </:col>
