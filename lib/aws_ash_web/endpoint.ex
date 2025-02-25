@@ -1,5 +1,5 @@
 defmodule AwsAshWeb.Endpoint do
-  use Phoenix.Endpoint, otp_app: :aws_ash
+  use Desktop.Endpoint, otp_app: :aws_ash
 
   # The session will be stored in the cookie and signed,
   # this means its contents can be read but not tampered with.
@@ -49,5 +49,10 @@ defmodule AwsAshWeb.Endpoint do
   plug Plug.MethodOverride
   plug Plug.Head
   plug Plug.Session, @session_options
+
+  if Application.compile_env(:aws_ash, :env) == :prod do
+    plug Desktop.Auth
+  end
+
   plug AwsAshWeb.Router
 end

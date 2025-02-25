@@ -23,6 +23,21 @@ defmodule AwsAsh.Application do
       AwsAsh.SdkMetrics.Server
     ]
 
+    children =
+      if Application.get_env(:aws_ash, :env) == :prod do
+        children ++
+          [
+            {Desktop.Window,
+             [
+               app: :aws_ash,
+               id: AwsAshWindow,
+               url: &AwsAshWeb.Endpoint.url/0
+             ]}
+          ]
+      else
+        children
+      end
+
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: AwsAsh.Supervisor]

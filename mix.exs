@@ -33,6 +33,7 @@ defmodule AwsAsh.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:desktop, "~> 1.0"},
       {:timex, "~> 3.0"},
       {:tzdata, "~> 1.0"},
       {:ash_sqlite,
