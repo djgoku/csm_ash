@@ -40,6 +40,13 @@ defmodule AwsAshWeb.SessionLive.Show do
       Copy IAM policy to clipboard
     </button>
 
+    <.table id="events-totals-#{@session.id}" rows={@totals_for_combine_service_and_api}>
+      <:col :let={event} label="Name">{event.name}</:col>
+      <:col :let={event} label="Attempt">{event.api_call_attempt}</:col>
+      <:col :let={event} label="Success">{event.api_call}</:col>
+      <:col :let={event} label="Percentage">{event.percentage_of_success}%</:col>
+    </.table>
+
     <.table id="events-#{@session.id}" rows={@session.events}>
       <:col :let={event} label="Id">{event.id}</:col>
 
@@ -86,12 +93,16 @@ defmodule AwsAshWeb.SessionLive.Show do
 
     iam_policy_lines = AwsAsh.iam_policy_json_string_lines(iam_policy_json_string)
 
+    totals_for_combine_service_and_api =
+      calculate_totals_for_combine_service_and_api(session.events)
+
     {:noreply,
      socket
      |> assign(:page_title, page_title(socket.assigns.live_action))
      |> assign(:session, session)
      |> assign(:iam_policy, iam_policy_json_string)
-     |> assign(:iam_policy_lines, iam_policy_lines)}
+     |> assign(:iam_policy_lines, iam_policy_lines)
+     |> assign(:totals_for_combine_service_and_api, totals_for_combine_service_and_api)}
   end
 
   @impl true
@@ -117,6 +128,41 @@ defmodule AwsAshWeb.SessionLive.Show do
       |> assign(:iam_policy_lines, AwsAsh.iam_policy_json_string_lines(iam_policy_json_string))
 
     {:noreply, socket}
+  end
+
+  def calculate_totals_for_combine_service_and_api(events) do
+    events
+    |> Enum.reduce(%{}, fn event, acc ->
+      service_and_api_map =
+        Map.get(acc, event.combine_service_and_api, %{
+          name: event.combine_service_and_api,
+          api_call_attempt: 0,
+          api_call: 0,
+          percentage_of_success: 0
+        })
+
+      service_and_api_map =
+        case event.type do
+          "ApiCall" ->
+            %{service_and_api_map | api_call: service_and_api_map.api_call + 1}
+
+          "ApiCallAttempt" ->
+            %{service_and_api_map | api_call_attempt: service_and_api_map.api_call_attempt + 1}
+        end
+
+      Map.put(acc, event.combine_service_and_api, service_and_api_map)
+    end)
+    |> Enum.map(fn {_k, service_and_api_map} ->
+      if service_and_api_map.api_call > 0 and service_and_api_map.api_call_attempt > 0 do
+        %{
+          service_and_api_map
+          | percentage_of_success:
+              floor(service_and_api_map.api_call / service_and_api_map.api_call_attempt * 100)
+        }
+      else
+        service_and_api_map
+      end
+    end)
   end
 
   defp page_title(:show), do: "Show Session"
