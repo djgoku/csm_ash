@@ -383,9 +383,11 @@ defmodule AwsAshWeb.CoreComponents do
         id={@id}
         value={Phoenix.HTML.Form.normalize_value(@type, @value)}
         class={[
-          "mt-2 block w-full rounded-lg text-zinc-900 dark:text-zinc-100 dark:bg-black focus:ring-0 sm:text-sm sm:leading-6 h-96",
-          @errors == [] && "border-zinc-300 dark:border-zinc-600 focus:border-zinc-400 focus:dark:border-zinc-700",
-          @errors != [] && "border-rose-400 dark:border-rose-800 focus:border-rose-400 focus:dark:border-rose-800"
+          "mt-2 block w-full rounded-lg text-zinc-900 dark:text-zinc-100 dark:bg-black focus:ring-0 sm:text-sm sm:leading-6 h-25",
+          @errors == [] &&
+            "border-zinc-300 dark:border-zinc-600 focus:border-zinc-400 focus:dark:border-zinc-700",
+          @errors != [] &&
+            "border-rose-400 dark:border-rose-800 focus:border-rose-400 focus:dark:border-rose-800"
         ]}
         {@rest}
       />
