@@ -1,4 +1,5 @@
 defmodule AwsAsh.SdkMetrics.Event do
+  require Logger
   use Ash.Resource, otp_app: :aws_ash, domain: AwsAsh.SdkMetrics, data_layer: AshSqlite.DataLayer
 
   require Ash.Query
@@ -15,8 +16,32 @@ defmodule AwsAsh.SdkMetrics.Event do
       accept [:api, :client_id, :service, :type, :json, :session_id]
     end
 
-    update :assign do
-      accept [:session_id]
+    read :search do
+      argument :query, :string do
+        constraints allow_empty?: true
+        default ""
+      end
+
+      # Only return ApiCall as these were successful API calls.
+      #
+      # ilike is used since we want case-insensitive searching and
+      # ash_sqlite like is case-sensitive.
+      filter expr(
+               type != "" and type == "ApiCall" and ilike(combine_service_and_api, ^arg(:query))
+             )
+
+      prepare build(load: [:combine_service_and_api])
+
+      # after_action runs so only unique sessions are returned since
+      # we can have the same API call happening multiple times within
+      # a session.
+      prepare after_action(fn query, records, _context ->
+                Logger.debug(
+                  "Query for #{query.action.name} on resource #{inspect(query.resource)} returned #{length(records)} records"
+                )
+
+                {:ok, Enum.uniq_by(records, & &1.session_id)}
+              end)
     end
   end
 

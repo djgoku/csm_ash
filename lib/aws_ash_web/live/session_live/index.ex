@@ -1,12 +1,24 @@
 defmodule AwsAshWeb.SessionLive.Index do
   use AwsAshWeb, :live_view
 
+  require Ash.Query
+
   @impl true
   def render(assigns) do
     ~H"""
     <.header>
       Listing Sessions
-      <:actions></:actions>
+      <:actions>
+        <.simple_form :let={f} for={%{}} phx-submit="maybe_search_or_selected">
+          <.input
+            label="Search events"
+            type="search"
+            field={f[:query]}
+            value={@query}
+            placeholder="sts"
+          />
+        </.simple_form>
+      </:actions>
     </.header>
 
     <.table
@@ -60,7 +72,24 @@ defmodule AwsAshWeb.SessionLive.Index do
 
   @impl true
   def handle_params(params, _url, socket) do
-    {:noreply, apply_action(socket, socket.assigns.live_action, params)}
+    query_text = Map.get(params, "q", "")
+
+    sessions =
+      if String.length(query_text) > 0 do
+        session_ids =
+          AwsAsh.SdkMetrics.search!("%#{query_text}%") |> Enum.map(& &1.session_id)
+
+        AwsAsh.SdkMetrics.Session |> Ash.Query.filter(id in ^session_ids) |> Ash.read!()
+      else
+        AwsAsh.SdkMetrics.Session
+        |> Ash.Query.sort(inserted_at: :desc)
+        |> Ash.read!()
+      end
+
+    {:noreply,
+     apply_action(socket, socket.assigns.live_action, params)
+     |> assign(:query, query_text)
+     |> stream(:sessions, sessions, reset: true)}
   end
 
   defp apply_action(socket, :edit, %{"id" => id}) do
@@ -90,5 +119,15 @@ defmodule AwsAshWeb.SessionLive.Index do
         socket
       ) do
     {:noreply, socket |> assign(:inserted, true) |> stream_insert(:sessions, payload, at: 0)}
+  end
+
+  @impl true
+  def handle_event("maybe_search_or_selected", %{"query" => query}, socket) do
+    params = %{q: query} |> remove_empty()
+    {:noreply, socket |> push_patch(to: ~p"/?#{params}")}
+  end
+
+  defp remove_empty(params) do
+    Enum.filter(params, fn {_key, val} -> val != "" end)
   end
 end

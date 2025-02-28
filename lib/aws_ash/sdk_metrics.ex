@@ -12,6 +12,7 @@ defmodule AwsAsh.SdkMetrics do
         args: [:api, :client_id, :service, :type, :json, :session_id],
         action: :create
 
+      define :search, args: [:query], action: :search
     end
   end
 end
