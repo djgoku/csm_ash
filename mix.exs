@@ -10,7 +10,14 @@ defmodule AwsAsh.MixProject do
       start_permanent: Mix.env() == :prod,
       consolidate_protocols: Mix.env() != :dev,
       aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+      package: package(),
+      releases: [
+        default: [
+          applications: [runtime_tools: :permanent, ssl: :permanent],
+          steps: [:assemble, &Desktop.Deployment.generate_installer/1]
+        ]
+      ]
     ]
   end
 
@@ -34,6 +41,7 @@ defmodule AwsAsh.MixProject do
   defp deps do
     [
       {:desktop, "~> 1.0"},
+      {:desktop_deployment, github: "elixir-desktop/deployment", runtimes: false},
       {:timex, "~> 3.0"},
       {:tzdata, "~> 1.0"},
       {:ash_sqlite, "~> 0.2"},
@@ -90,6 +98,19 @@ defmodule AwsAsh.MixProject do
         "phx.digest"
       ],
       "ash.setup": ["ash.setup", "run priv/repo/seeds.exs"]
+    ]
+  end
+
+  def package() do
+    [
+      name: "aws_ash",
+      name_long: "aws_ash",
+      description: "aws_ash receives and displays AWS SDK metric telemetry.",
+      description_long:
+        "aws_ash receives and displays AWS SDK metric telemetry. Built with Elixir, Phoenix LiveView, SQLite, Ash and Elixir Desktop.",
+      icon: "priv/logo.png",
+      category_macos: "public.app-category.productivity",
+      identifier: "io.aws_ash.app"
     ]
   end
 end
