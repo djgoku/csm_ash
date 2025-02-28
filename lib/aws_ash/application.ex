@@ -11,7 +11,9 @@ defmodule AwsAsh.Application do
       AwsAshWeb.Telemetry,
       AwsAsh.Repo,
       {Ecto.Migrator,
-       repos: Application.fetch_env!(:aws_ash, :ecto_repos), skip: skip_migrations?()},
+       repos: Application.fetch_env!(:aws_ash, :ecto_repos),
+       skip: skip_migrations?(),
+       log_migrator_sql: true},
       {DNSCluster, query: Application.get_env(:aws_ash, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: AwsAsh.PubSub},
       # Start the Finch HTTP client for sending emails
@@ -54,6 +56,6 @@ defmodule AwsAsh.Application do
 
   defp skip_migrations?() do
     # By default, sqlite migrations are run when using a release
-    System.get_env("RELEASE_NAME") != nil
+    Application.get_env(:aws_ash, :env) != :prod
   end
 end
