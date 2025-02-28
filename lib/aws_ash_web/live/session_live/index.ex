@@ -40,21 +40,8 @@ defmodule AwsAshWeb.SessionLive.Index do
         <div class="sr-only">
           <.link navigate={~p"/#{session}"}>Show</.link>
         </div>
-
-        <.link patch={~p"/#{session}/edit"}>Edit</.link>
       </:action>
     </.table>
-
-    <.modal :if={@live_action in [:edit]} id="session-modal" show on_cancel={JS.patch(~p"/")}>
-      <.live_component
-        module={AwsAshWeb.SessionLive.FormComponent}
-        id={@session && @session.id}
-        title={@page_title}
-        action={@live_action}
-        session={@session}
-        patch={~p"/"}
-      />
-    </.modal>
     """
   end
 
