@@ -45,6 +45,10 @@ defmodule AwsAsh.SdkMetrics.Event do
     end
   end
 
+  preparations do
+    prepare build(sort: [inserted_at: :desc])
+  end
+
   attributes do
     uuid_primary_key :id
     create_timestamp :inserted_at
