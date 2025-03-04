@@ -36,6 +36,19 @@ defmodule AwsAshWeb.SessionLive.Index do
         {AwsAsh.to_local_datetime(session.inserted_at)}
       </:col>
     </.table>
+
+    <div
+      :if={AshPhoenix.LiveView.prev_page?(@page) || AshPhoenix.LiveView.next_page?(@page)}
+      class="flex justify-center pt-8"
+    >
+      <.button phx-click="prev_page" disabled={!AshPhoenix.LiveView.prev_page?(@page)}>
+        Previous
+      </.button>
+      <.button phx-click="next_page" disabled={!AshPhoenix.LiveView.next_page?(@page)}>Next</.button>
+    </div>
+    <div class="pt-8 flex justify-end text-zinc-700 dark:text-zinc-100">
+      <h1>Total sessions: {@page.count}</h1>
+    </div>
     """
   end
 
@@ -116,7 +129,34 @@ defmodule AwsAshWeb.SessionLive.Index do
     {:noreply, socket |> push_patch(to: ~p"/?#{params}")}
   end
 
-  defp remove_empty(params) do
+  @impl true
+  def handle_event("next_page", _params, socket) do
+    page_params = query_string(socket.assigns.page, socket.assigns.query, "next")
+
+    {:noreply,
+     socket
+     |> push_patch(to: ~p"/?#{page_params}")}
+  end
+
+  @impl true
+  def handle_event("prev_page", _params, socket) do
+    page_params = query_string(socket.assigns.page, socket.assigns.query, "prev")
+
+    {:noreply,
+     socket
+     |> push_patch(to: ~p"/?#{page_params}")}
+  end
+
+  def query_string(page, query_text, which) do
+    case AshPhoenix.LiveView.page_link_params(page, which) do
+      :invalid -> []
+      list -> list
+    end
+    |> Keyword.put(:q, query_text)
+    |> remove_empty()
+  end
+
+  def remove_empty(params) do
     Enum.filter(params, fn {_key, val} -> val != "" end)
   end
 end
