@@ -105,11 +105,6 @@ defmodule AwsAshWeb.SessionLive.Index do
   end
 
   @impl true
-  def handle_info({AwsAshWeb.SessionLive.FormComponent, {:saved, session}}, socket) do
-    {:noreply, stream_insert(socket, :sessions, session)}
-  end
-
-  @impl true
   def handle_info(
         %Phoenix.Socket.Broadcast{
           topic: "sessions",
