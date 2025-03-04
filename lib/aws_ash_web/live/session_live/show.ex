@@ -27,12 +27,12 @@ defmodule AwsAshWeb.SessionLive.Show do
       rows={@iam_policy_lines}
     />
 
-    <button
+    <.button
       phx-click={JS.dispatch("session_live:copy_iam_policy_to_clipboard", to: "#iam-policy")}
       class="text-black dark:text-white"
     >
       Copy IAM policy to clipboard
-    </button>
+    </.button>
 
     <.table id="events-totals-#{@session.id}" rows={@totals_for_combine_service_and_api}>
       <:col :let={event} label="Name">{event.name}</:col>
