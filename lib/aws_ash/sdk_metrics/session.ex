@@ -7,7 +7,15 @@ defmodule AwsAsh.SdkMetrics.Session do
   end
 
   actions do
-    defaults [:read]
+    read :read do
+      primary? true
+
+      pagination do
+        offset? true
+        default_limit 15
+        countable true
+      end
+    end
 
     create :create do
       accept [:in_port, :client_id]

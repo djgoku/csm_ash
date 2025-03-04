@@ -27,7 +27,7 @@ defmodule AwsAsh.SdkMetrics.Server do
     Logger.info("#{__MODULE__} listening on udp port #{udp_port}")
     {:ok, _socket} = :gen_udp.open(31000)
 
-    {:ok, %{sessions: sessions}}
+    {:ok, %{sessions: sessions.results}}
   end
 
   @impl true

@@ -23,24 +23,18 @@ defmodule AwsAshWeb.SessionLive.Index do
 
     <.table
       id="sessions"
-      rows={@streams.sessions}
-      row_click={fn {_id, session} -> JS.navigate(~p"/#{session}") end}
+      rows={@page.results}
+      row_click={fn session -> JS.navigate(~p"/#{session.id}?#{@query_map}") end}
     >
-      <:col :let={{_id, session}} label="Id">{session.id}</:col>
+      <:col :let={session} label="Id">{session.id}</:col>
 
-      <:col :let={{_id, session}} label="In port">{session.in_port}</:col>
+      <:col :let={session} label="In port">{session.in_port}</:col>
 
-      <:col :let={{_id, session}} label="Client">{session.client_id}</:col>
+      <:col :let={session} label="Client">{session.client_id}</:col>
 
-      <:col :let={{_id, session}} label="Inserted At (Local time)">
+      <:col :let={session} label="Inserted At (Local time)">
         {AwsAsh.to_local_datetime(session.inserted_at)}
       </:col>
-
-      <:action :let={{_id, session}}>
-        <div class="sr-only">
-          <.link navigate={~p"/#{session}"}>Show</.link>
-        </div>
-      </:action>
     </.table>
     """
   end
@@ -49,34 +43,40 @@ defmodule AwsAshWeb.SessionLive.Index do
   def mount(_params, _session, socket) do
     AwsAshWeb.Endpoint.subscribe("sessions")
 
-    sessions =
+    page =
       AwsAsh.SdkMetrics.Session
       |> Ash.Query.sort(inserted_at: :desc)
-      |> Ash.read!()
+      |> Ash.read!(page: [count: true])
 
-    {:ok, socket |> assign(:inserted, false) |> stream(:sessions, sessions)}
+    {:ok, socket |> assign(:inserted, false) |> assign(:page, page)}
   end
 
   @impl true
   def handle_params(params, _url, socket) do
-    query_text = Map.get(params, "q", "")
+    query = Map.get(params, "q", "")
+    page_params = AshPhoenix.LiveView.page_from_params(params, 15)
+    page_params = Keyword.put(page_params, :count, true)
 
-    sessions =
-      if String.length(query_text) > 0 do
-        session_ids =
-          AwsAsh.SdkMetrics.search!("%#{query_text}%") |> Enum.map(& &1.session_id)
+    page =
+      if String.length(query) > 0 do
+        offset = AwsAsh.SdkMetrics.search!("%#{query}%")
+        session_ids = offset |> Enum.map(& &1.session_id)
 
-        AwsAsh.SdkMetrics.Session |> Ash.Query.filter(id in ^session_ids) |> Ash.read!()
+        AwsAsh.SdkMetrics.Session
+        |> Ash.Query.filter(id in ^session_ids)
+        |> Ash.Query.sort(inserted_at: :desc)
+        |> Ash.read!(page: page_params)
       else
         AwsAsh.SdkMetrics.Session
         |> Ash.Query.sort(inserted_at: :desc)
-        |> Ash.read!()
+        |> Ash.read!(page: page_params)
       end
 
     {:noreply,
      apply_action(socket, socket.assigns.live_action, params)
-     |> assign(:query, query_text)
-     |> stream(:sessions, sessions, reset: true)}
+     |> assign(:query, query)
+     |> assign(:query_map, params)
+     |> assign(:page, page)}
   end
 
   defp apply_action(socket, :edit, %{"id" => id}) do
@@ -105,7 +105,9 @@ defmodule AwsAshWeb.SessionLive.Index do
         },
         socket
       ) do
-    {:noreply, socket |> assign(:inserted, true) |> stream_insert(:sessions, payload, at: 0)}
+    page = socket.assigns.page
+    page = Map.put(page, :results, [payload] ++ page.results)
+    {:noreply, socket |> assign(:inserted, true) |> assign(:page, page)}
   end
 
   @impl true
