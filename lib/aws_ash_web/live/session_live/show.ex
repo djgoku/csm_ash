@@ -107,12 +107,16 @@ defmodule AwsAshWeb.SessionLive.Show do
     iam_policy_json_string = AwsAsh.iam_policy_json_string(unique_events)
     session = Map.put(socket.assigns.session, :events, events)
 
+    totals_for_combine_service_and_api =
+      calculate_totals_for_combine_service_and_api(session.events)
+
     socket =
       socket
       |> assign(:session, session)
       |> assign(:unique_events, unique_events)
       |> assign(:iam_policy, iam_policy_json_string)
       |> assign(:iam_policy_lines, AwsAsh.iam_policy_json_string_lines(iam_policy_json_string))
+      |> assign(:totals_for_combine_service_and_api, totals_for_combine_service_and_api)
 
     {:noreply, socket}
   end
