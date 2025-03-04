@@ -57,7 +57,7 @@ defmodule AwsAshWeb.SessionLive.Show do
       </:col>
     </.table>
 
-    <.back navigate={~p"/"}>Back to sessions</.back>
+    <.back navigate={~p"/?#{@query_map}"}>Back to sessions</.back>
     """
   end
 
