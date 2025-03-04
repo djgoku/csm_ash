@@ -67,8 +67,11 @@ defmodule AwsAshWeb.SessionLive.Show do
   end
 
   @impl true
-  def handle_params(%{"id" => id}, _, socket) do
+  def handle_params(%{"id" => id} = params, _, socket) do
     AwsAshWeb.Endpoint.subscribe("session:#{id}")
+
+    query_map = Map.delete(params, "id")
+
     session = AwsAsh.SdkMetrics.get_session_by_id!(id, load: [events: [:combine_service_and_api]])
 
     iam_policy_json_string =
@@ -85,7 +88,8 @@ defmodule AwsAshWeb.SessionLive.Show do
      |> assign(:session, session)
      |> assign(:iam_policy, iam_policy_json_string)
      |> assign(:iam_policy_lines, iam_policy_lines)
-     |> assign(:totals_for_combine_service_and_api, totals_for_combine_service_and_api)}
+     |> assign(:totals_for_combine_service_and_api, totals_for_combine_service_and_api)
+     |> assign(:query_map, query_map)}
   end
 
   @impl true
