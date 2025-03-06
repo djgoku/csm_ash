@@ -88,8 +88,24 @@ defmodule AwsAshWeb.SessionLive.Index do
     {:noreply,
      apply_action(socket, socket.assigns.live_action, params)
      |> assign(:query, query)
-     |> assign(:query_map, params)
+     |> assign(:query_map, params_to_session_params(params))
      |> assign(:page, page)}
+  end
+
+  defp params_to_session_params(params) do
+    params
+    |> Enum.reduce(%{}, fn {k, v}, acc ->
+      case k do
+        i when i == "limit" or i == "offset" ->
+          Map.put(acc, "sessions_#{i}", v)
+
+        "q" ->
+          Map.put(acc, "q", v)
+
+        _ ->
+          acc
+      end
+    end)
   end
 
   defp apply_action(socket, :edit, %{"id" => id}) do
