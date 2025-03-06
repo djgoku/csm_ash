@@ -41,7 +41,7 @@ defmodule AwsAshWeb.SessionLive.Show do
       <:col :let={event} label="Percentage">{event.percentage_of_success}%</:col>
     </.table>
 
-    <.table id="events-#{@session.id}" rows={@session.events}>
+    <.table id="events-#{@session.id}" rows={@page.results}>
       <:col :let={event} label="Id">{event.id}</:col>
 
       <:col :let={event} label="Service">{event.service}</:col>
@@ -61,6 +61,23 @@ defmodule AwsAshWeb.SessionLive.Show do
     """
   end
 
+  defp params_to_session_params(params) do
+    params
+    |> Enum.reduce(%{}, fn {k, v}, acc ->
+      case k do
+        i when i == "sessions_limit" or i == "sessions_offset" ->
+          split = String.split(i, "_")
+          Map.put(acc, "#{Enum.at(split, 1)}", v)
+
+        "q" ->
+          Map.put(acc, "q", v)
+
+        _ ->
+          acc
+      end
+    end)
+  end
+
   @impl true
   def mount(_params, _session, socket) do
     {:ok, socket}
@@ -71,8 +88,16 @@ defmodule AwsAshWeb.SessionLive.Show do
     AwsAshWeb.Endpoint.subscribe("session:#{id}")
 
     query_map = Map.delete(params, "id")
+    page_params = AshPhoenix.LiveView.page_from_params(params, 15)
+    page_params = Keyword.put(page_params, :count, true)
 
     session = AwsAsh.SdkMetrics.get_session_by_id!(id, load: [events: [:combine_service_and_api]])
+
+    page =
+      AwsAsh.SdkMetrics.get_events_by_session_id!(id,
+        load: [:combine_service_and_api],
+        page: page_params
+      )
 
     iam_policy_json_string =
       AwsAsh.iam_policy_json_string(AwsAsh.SdkMetrics.Event.unique_events(session.events))
@@ -86,6 +111,7 @@ defmodule AwsAshWeb.SessionLive.Show do
      socket
      |> assign(:page_title, page_title(socket.assigns.live_action))
      |> assign(:session, session)
+     |> assign(:page, page)
      |> assign(:iam_policy, iam_policy_json_string)
      |> assign(:iam_policy_lines, iam_policy_lines)
      |> assign(:totals_for_combine_service_and_api, totals_for_combine_service_and_api)

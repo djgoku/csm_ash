@@ -16,6 +16,16 @@ defmodule AwsAsh.SdkMetrics.Event do
       accept [:api, :client_id, :service, :type, :json, :session_id]
     end
 
+    read :get_events_by_session_id do
+      argument :session_id, :string
+      filter expr(session_id == ^arg(:session_id))
+
+      pagination do
+        offset? true
+        countable true
+      end
+    end
+
     read :search do
       argument :query, :string do
         constraints allow_empty?: true

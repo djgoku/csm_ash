@@ -13,6 +13,7 @@ defmodule AwsAsh.SdkMetrics do
         action: :create
 
       define :search, args: [:query], action: :search
+      define :get_events_by_session_id, args: [:session_id], action: :get_events_by_session_id
     end
   end
 end
