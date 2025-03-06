@@ -57,7 +57,6 @@ defmodule AwsAshWeb.SessionLive.Show do
       </:col>
     </.table>
 
-    <.back navigate={~p"/?#{@query_map}"}>Back to sessions</.back>
     <div
       :if={AshPhoenix.LiveView.prev_page?(@page) || AshPhoenix.LiveView.next_page?(@page)}
       class="flex justify-center pt-8"
@@ -71,6 +70,7 @@ defmodule AwsAshWeb.SessionLive.Show do
       <h1>Total sessions: {@page.count}</h1>
     </div>
 
+    <.back navigate={~p"/?#{@session_params}"}>Back to sessions</.back>
     """
   end
 
@@ -92,8 +92,8 @@ defmodule AwsAshWeb.SessionLive.Show do
   end
 
   @impl true
-  def mount(_params, _session, socket) do
-    {:ok, socket}
+  def mount(params, _session, socket) do
+    {:ok, socket |> assign(:session_params, params_to_session_params(params))}
   end
 
   @impl true
