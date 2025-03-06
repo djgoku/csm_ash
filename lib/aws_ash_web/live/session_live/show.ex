@@ -58,6 +58,19 @@ defmodule AwsAshWeb.SessionLive.Show do
     </.table>
 
     <.back navigate={~p"/?#{@query_map}"}>Back to sessions</.back>
+    <div
+      :if={AshPhoenix.LiveView.prev_page?(@page) || AshPhoenix.LiveView.next_page?(@page)}
+      class="flex justify-center pt-8"
+    >
+      <.button phx-click="prev_page" disabled={!AshPhoenix.LiveView.prev_page?(@page)}>
+        Previous
+      </.button>
+      <.button phx-click="next_page" disabled={!AshPhoenix.LiveView.next_page?(@page)}>Next</.button>
+    </div>
+    <div class="pt-8 flex justify-end text-zinc-700 dark:text-zinc-100">
+      <h1>Total sessions: {@page.count}</h1>
+    </div>
+
     """
   end
 
@@ -87,7 +100,6 @@ defmodule AwsAshWeb.SessionLive.Show do
   def handle_params(%{"id" => id} = params, _, socket) do
     AwsAshWeb.Endpoint.subscribe("session:#{id}")
 
-    query_map = Map.delete(params, "id")
     page_params = AshPhoenix.LiveView.page_from_params(params, 15)
     page_params = Keyword.put(page_params, :count, true)
 
@@ -114,8 +126,7 @@ defmodule AwsAshWeb.SessionLive.Show do
      |> assign(:page, page)
      |> assign(:iam_policy, iam_policy_json_string)
      |> assign(:iam_policy_lines, iam_policy_lines)
-     |> assign(:totals_for_combine_service_and_api, totals_for_combine_service_and_api)
-     |> assign(:query_map, query_map)}
+     |> assign(:totals_for_combine_service_and_api, totals_for_combine_service_and_api)}
   end
 
   @impl true
@@ -184,4 +195,36 @@ defmodule AwsAshWeb.SessionLive.Show do
 
   defp page_title(:show), do: "Show Session"
   defp page_title(:edit), do: "Edit Session"
+
+  @impl true
+  def handle_event("next_page", _params, socket) do
+    dbg()
+    page_params = query_string(socket.assigns.page, "", "next")
+
+    {:noreply,
+     socket
+     |> push_patch(to: ~p"/#{socket.assigns.session.id}?#{page_params}")}
+  end
+
+  @impl true
+  def handle_event("prev_page", _params, socket) do
+    page_params = query_string(socket.assigns.page, "", "prev")
+
+    {:noreply,
+     socket
+     |> push_patch(to: ~p"/#{socket.assigns.session.id}?#{page_params}")}
+  end
+
+  def query_string(page, query_text, which) do
+    case AshPhoenix.LiveView.page_link_params(page, which) do
+      :invalid -> []
+      list -> list
+    end
+    |> Keyword.put(:q, query_text)
+    |> remove_empty()
+  end
+
+  def remove_empty(params) do
+    Enum.filter(params, fn {_key, val} -> val != "" end)
+  end
 end
